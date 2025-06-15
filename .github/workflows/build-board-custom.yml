@@ -30,12 +30,17 @@ jobs:
 
     steps:
 
+    # 设置文件名变量
+    - name: Set build file name
+      run: |
+        FILE_NAME="${{ inputs.keyboard }}_${{ inputs.revision }}_${{ inputs.keymaps }}"
+        SAFE_FILE_NAME=$(echo "$FILE_NAME" | sed 's/\//_/g')
+        echo "FILE=$SAFE_FILE_NAME" >> $GITHUB_ENV
+        echo "Using file name: $SAFE_FILE_NAME"
 
     - name: Upload artifact (vial)
       if: inputs.keymaps == 'vial'
-      env:
-        FILE: $(echo "${{ inputs.keyboard }}_${{ inputs.revision }}_${{ inputs.keymaps }}" | sed 's/\//_/g')
       uses: actions/upload-artifact@v4
       with:
-        name: ${{ FILE }}.uf2
-        path: keyboards/${{ inputs.keyboard }}/vial-kb/vial-qmk/.build/${{ FILE }}.uf2
+        name: ${{ env.FILE }}.uf2
+        path: keyboards/${{ inputs.keyboard }}/vial-kb/vial-qmk/.build/${{ env.FILE }}.uf2
