@@ -1,0 +1,62 @@
+name: Build board (custom)
+
+on:
+  workflow_dispatch:
+    inputs:
+      keyboard:
+        description: 'Keyboard: Found in kbd_firmware/keyboards/[keyboard_name]'
+        required: false
+        default: crkbd
+        type: string
+      revision:
+        description: 'Revision: '
+        required: false
+        default: rev4_1/standard
+        type: string
+      keymaps:
+        description: 'Keymaps: via or vial'
+        required: false
+        default: vial
+        type: string
+
+run-name: ${{ inputs.keyboard }}-${{ inputs.revision }}-${{ inputs.keymaps }}
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+    - name: Prepare Your Build Environment
+      run: |
+        python3 -m pip install --user qmk
+    - name: Run QMK Setup
+      run: |
+        qmk setup -y
+    - name: Getting Source Files
+      run: |
+        make git-submodule
+    - name: Building Firmwares
+      if: inputs.keymaps == 'via'
+      run: |
+        make qmk-clean
+        kb=${{ inputs.keyboard }} make qmk-init
+        kb=${{ inputs.keyboard }} kr=${{ inputs.keyboard }} km=via make qmk-compile
+      working-directory: keyboards/${{ inputs.keyboard }}/qmk/qmk_firmware/.build/
+    - name: Building Firmwares
+      if: inputs.keymaps == 'vial'
+      run: |
+        make vial-qmk-clean
+        kb=${{ inputs.keyboard }} make vial-qmk-init
+        kb=${{ inputs.keyboard }} kr=${{ inputs.keyboard }} km=vial make vial-qmk-compile
+      working-directory: keyboards/${{ inputs.keyboard }}/vial-kb/vial-qmk/.build/
+    - name: Upload artifact
+      if: inputs.keymaps == 'via'
+      uses: actions/upload-artifact@v4
+      with:
+        name: $(shell echo "${{ inputs.keyboard }}_${{ inputs.revision }}_${{ inputs.keymaps }}" | sed 's/\//_/').uf2
+        path: keyboards/${{ inputs.keyboard }}/qmk/qmk_firmware/.build/*.uf2
+    - name: Upload artifact
+      if: inputs.keymaps == 'vial'
+      uses: actions/upload-artifact@v4
+      with:
+        name: $(shell echo "${{ inputs.keyboard }}_${{ inputs.revision }}_${{ inputs.keymaps }}" | sed 's/\//_/').uf2
+        path: keyboards/${{ inputs.keyboard }}/vial-kb/vial-qmk/.build/*.uf2
