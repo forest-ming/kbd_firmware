@@ -29,14 +29,47 @@ jobs:
         working-directory: ${{ github.workspace }}  # 设置全局工作目录为仓库根目录
 
     steps:
+    - uses: actions/checkout@v4
 
-    # 设置文件名变量
-    - name: Set build file name
+    - name: Prepare Your Build Environment
+      run: |
+        python3 -m pip install --user qmk
+
+    - name: Run QMK Setup
+      run: |
+        qmk setup -y
+
+    - name: Getting Source Files
+      run: |
+        make git-submodule
+
+    - name: Building Firmwares (via)
+      if: inputs.keymaps == 'via'
+      run: |
+        make qmk-clean
+        kb=${{ inputs.keyboard }} make qmk-init
+        kb=${{ inputs.keyboard }} kr=${{ inputs.revision }} km=via make qmk-compile
+
+    - name: Building Firmwares (vial)
+      if: inputs.keymaps == 'vial'
+      run: |
+        make vial-qmk-clean
+        kb=${{ inputs.keyboard }} make vial-qmk-init
+        kb=${{ inputs.keyboard }} kr=${{ inputs.revision }} km=vial make vial-qmk-compile
+
+    - name: Set File Name
       run: |
         FILE_NAME="${{ inputs.keyboard }}_${{ inputs.revision }}_${{ inputs.keymaps }}"
         SAFE_FILE_NAME=$(echo "$FILE_NAME" | sed 's/\//_/g')
         echo "FILE=$SAFE_FILE_NAME" >> $GITHUB_ENV
         echo "Using file name: $SAFE_FILE_NAME"
+
+    - name: Upload artifact (via)
+      if: inputs.keymaps == 'via'
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ env.FILE }}.uf2
+        path: keyboards/${{ inputs.keyboard }}/qmk/qmk_firmware/.build/${{ env.FILE }}.uf2
 
     - name: Upload artifact (vial)
       if: inputs.keymaps == 'vial'
