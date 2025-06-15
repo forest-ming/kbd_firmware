@@ -25,6 +25,10 @@ jobs:
   build:
     runs-on: ubuntu-24.04
     steps:
+    - name: Set up repository
+      run: |
+        git clone "https://github.com/$REPO.git"
+        cd $REPO
     - name: Prepare Your Build Environment
       run: |
         python3 -m pip install --user qmk
