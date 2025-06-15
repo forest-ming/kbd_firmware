@@ -33,37 +33,46 @@ jobs:
 
     - name: Prepare Your Build Environment
       run: |
-        FILE=$(echo "${{ inputs.keyboard }}_${{ inputs.revision }}_${{ inputs.keymaps }}" | sed 's/\//_/g')
         python3 -m pip install --user qmk
+
     - name: Run QMK Setup
       run: |
         qmk setup -y
+
     - name: Getting Source Files
       run: |
         make git-submodule
+
     - name: Building Firmwares (via)
       if: inputs.keymaps == 'via'
       run: |
         make qmk-clean
         kb=${{ inputs.keyboard }} make qmk-init
         kb=${{ inputs.keyboard }} kr=${{ inputs.revision }} km=via make qmk-compile
+
     - name: Building Firmwares (vial)
       if: inputs.keymaps == 'vial'
       run: |
         make vial-qmk-clean
         kb=${{ inputs.keyboard }} make vial-qmk-init
         kb=${{ inputs.keyboard }} kr=${{ inputs.revision }} km=vial make vial-qmk-compile
-  
+
+    - name: File Name
+      env:
+        FILE: $(echo "${{ inputs.keyboard }}_${{ inputs.revision }}_${{ inputs.keymaps }}" | sed 's/\//_/g')
+    #   run: |
+    #     FILE=$(echo "${{ inputs.keyboard }}_${{ inputs.revision }}_${{ inputs.keymaps }}" | sed 's/\//_/g')
+
     - name: Upload artifact (via)
       if: inputs.keymaps == 'via'
       uses: actions/upload-artifact@v4
       with:
-        name: $FILE.uf2
-        path: keyboards/${{ inputs.keyboard }}/qmk/qmk_firmware/.build/$FILE.uf2
-  
+        name: "$FILE".uf2
+        path: keyboards/${{ inputs.keyboard }}/qmk/qmk_firmware/.build/"$FILE".uf2
+
     - name: Upload artifact (vial)
       if: inputs.keymaps == 'vial'
       uses: actions/upload-artifact@v4
       with:
-        name: $FILE.uf2
-        path: keyboards/${{ inputs.keyboard }}/vial-kb/vial-qmk/.build/$FILE.uf2
+        name: "$FILE".uf2
+        path: keyboards/${{ inputs.keyboard }}/vial-kb/vial-qmk/.build/"$FILE".uf2
