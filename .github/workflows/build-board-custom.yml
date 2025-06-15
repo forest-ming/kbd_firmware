@@ -68,12 +68,12 @@ jobs:
       if: inputs.keymaps == 'via'
       uses: actions/upload-artifact@v4
       with:
-        name: ${{ env.FILE }}.uf2
+        name: ${{ env.FILE }}
         path: keyboards/${{ inputs.keyboard }}/qmk/qmk_firmware/.build/${{ env.FILE }}.uf2
 
     - name: Upload artifact (vial)
       if: inputs.keymaps == 'vial'
       uses: actions/upload-artifact@v4
       with:
-        name: ${{ env.FILE }}.uf2
+        name: ${{ env.FILE }}
         path: keyboards/${{ inputs.keyboard }}/vial-kb/vial-qmk/.build/${{ env.FILE }}.uf2
