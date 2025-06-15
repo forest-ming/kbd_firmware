@@ -33,7 +33,7 @@ jobs:
 
     - name: Prepare Your Build Environment
       run: |
-        FILE = $(echo "${{ inputs.keyboard }}_${{ inputs.revision }}_${{ inputs.keymaps }}" | sed 's/\//_/g')
+        FILE=$(echo "${{ inputs.keyboard }}_${{ inputs.revision }}_${{ inputs.keymaps }}" | sed 's/\//_/g')
         python3 -m pip install --user qmk
     - name: Run QMK Setup
       run: |
