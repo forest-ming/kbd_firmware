@@ -21,3 +21,13 @@ on:
 
 run-name: ${{ inputs.keyboard }}-${{ inputs.revision | sed 's/\//_/' }}-${{ inputs.keymaps }}
 
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: ${{ github.workspace }}  # 设置全局工作目录为仓库根目录
+
+    steps:
+    - uses: actions/checkout@v4
+
