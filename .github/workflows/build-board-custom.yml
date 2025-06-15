@@ -57,14 +57,10 @@ jobs:
         kb=${{ inputs.keyboard }} make vial-qmk-init
         kb=${{ inputs.keyboard }} kr=${{ inputs.revision }} km=vial make vial-qmk-compile
 
-    - name: File Name
-      env:
-        FILE: $(echo "${{ inputs.keyboard }}_${{ inputs.revision }}_${{ inputs.keymaps }}" | sed 's/\//_/g')
-    #   run: |
-    #     FILE=$(echo "${{ inputs.keyboard }}_${{ inputs.revision }}_${{ inputs.keymaps }}" | sed 's/\//_/g')
-
     - name: Upload artifact (via)
       if: inputs.keymaps == 'via'
+      env:
+        FILE: $(echo "${{ inputs.keyboard }}_${{ inputs.revision }}_${{ inputs.keymaps }}" | sed 's/\//_/g')
       uses: actions/upload-artifact@v4
       with:
         name: $FILE.uf2
@@ -72,6 +68,8 @@ jobs:
 
     - name: Upload artifact (vial)
       if: inputs.keymaps == 'vial'
+      env:
+        FILE: $(echo "${{ inputs.keyboard }}_${{ inputs.revision }}_${{ inputs.keymaps }}" | sed 's/\//_/g')
       uses: actions/upload-artifact@v4
       with:
         name: $FILE.uf2
